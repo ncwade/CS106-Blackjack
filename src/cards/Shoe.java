@@ -4,6 +4,7 @@ import java.util.Collections;
 
 public class Shoe {
 	private ArrayList<Card> mCards;
+	private Integer mCount;
 	
 	Shoe(int numDecks) {
 		mCards = new ArrayList<Card>();
@@ -14,17 +15,27 @@ public class Shoe {
 				mCards.add(deck.draw());
 			}
 		}
-		
+		mCount = 0;
 		// Re-shuffle our shuffled cards.
 		Collections.shuffle(mCards);
 	}
 	
 	public Card draw() {
-		return mCards.remove(0);
+		Card lCard = mCards.remove(0);
+		if(lCard.getValue() <= 6) {
+			mCount += 1;
+		} else if (lCard.getValue() >= 10) {
+			mCount -= 1;
+		}
+		return lCard;
 	}
 
 	public void burn() {
 		mCards.remove(0);
+	}
+	
+	public Integer getCount() {
+		return mCount;
 	}
 
 }
