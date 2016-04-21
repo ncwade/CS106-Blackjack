@@ -22,16 +22,12 @@ public class Shoe {
 	
 	public Card draw() {
 		Card lCard = mCards.remove(0);
-		if(lCard.getValue() <= 6 && lCard.getValue() >= 2) {
-			mCount += 1;
-		} else if (lCard.getValue() >= 10 || lCard.getValue() == 1) {
-			mCount -= 1;
-		}
+		updateCount(lCard);
 		return lCard;
 	}
 
 	public void burn() {
-		mCards.remove(0);
+		updateCount(mCards.remove(0));
 	}
 	
 	public Integer getCount() {
@@ -40,6 +36,14 @@ public class Shoe {
 	
 	public boolean empty() {
 		return !(mCards.size() > 0);
+	}
+	
+	private void updateCount(Card card) {
+		if(card.getValue() <= 6 && card.getValue() >= 2) {
+			mCount += 1;
+		} else if (card.getValue() >= 10 || card.getValue() == 1) {
+			mCount -= 1;
+		}
 	}
 
 }
