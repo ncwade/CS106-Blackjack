@@ -6,7 +6,7 @@ public class Shoe {
 	private ArrayList<Card> mCards;
 	private Integer mCount;
 	
-	Shoe(int numDecks) {
+	public Shoe(int numDecks) {
 		mCards = new ArrayList<Card>();
 		for(int i = 0; i < numDecks;i++) {
 			Deck deck = new Deck();
@@ -36,6 +36,10 @@ public class Shoe {
 	
 	public Integer getCount() {
 		return mCount;
+	}
+	
+	public boolean empty() {
+		return !(mCards.size() > 0);
 	}
 
 }
