@@ -22,9 +22,9 @@ public class Shoe {
 	
 	public Card draw() {
 		Card lCard = mCards.remove(0);
-		if(lCard.getValue() <= 6) {
+		if(lCard.getValue() <= 6 && lCard.getValue() >= 2) {
 			mCount += 1;
-		} else if (lCard.getValue() >= 10) {
+		} else if (lCard.getValue() >= 10 || lCard.getValue() == 1) {
 			mCount -= 1;
 		}
 		return lCard;
