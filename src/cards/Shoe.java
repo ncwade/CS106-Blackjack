@@ -31,7 +31,7 @@ public class Shoe {
 	}
 	
 	public Integer getCount() {
-		return mCount;
+		return mCount/((mCards.size()/52)+1);
 	}
 	
 	public boolean empty() {
