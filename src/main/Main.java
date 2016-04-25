@@ -9,5 +9,4 @@ public class Main {
 			System.out.println(shoe.draw().toString()+" was drawen, the count is now "+shoe.getCount());
 		}
 	}
-	//testing
 }
