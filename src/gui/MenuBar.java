@@ -7,6 +7,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 import main.Blackjack;
 
@@ -23,7 +24,9 @@ public class MenuBar extends JMenuBar {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				Blackjack game = Blackjack.getInstance();
-				game.newGame();
+				String str = JOptionPane.showInputDialog("Number of human players?");
+				game.newGame(Integer.parseInt(str));
+				game.game();
 			}
 		});
 

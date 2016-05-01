@@ -8,6 +8,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 public class Blackjack {
+	// Constants
+	final static int MAX_SEATS = 3;
 	// Create our Singleton instance.
 	private static Blackjack instance = new Blackjack();
 	// Ensure other copies of the object cannot be created. This ensures we will throw compile errors if the state is incorrect.
@@ -32,7 +34,6 @@ public class Blackjack {
 			}
 		}
 	};
-	
 	private ActionListener mDoubleListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent event) {
@@ -41,7 +42,6 @@ public class Blackjack {
 			}
 		}
 	};
-	
 	private ActionListener mHitListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent event) {
@@ -50,7 +50,6 @@ public class Blackjack {
 			}
 		}
 	};
-	
 	private ActionListener mHoldListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent event) {
@@ -59,7 +58,6 @@ public class Blackjack {
 			}
 		}
 	};
-
 	// Getters/Setters for the various member variables.
 	public JLabel getBackground() {
 		mBackground.setIcon(new ImageIcon("resources/felt.jpg"));
@@ -92,11 +90,9 @@ public class Blackjack {
 	public ActionListener getDoubleListener() {
 		return mDoubleListener;
 	}
-	
 	public ActionListener getHoldListener() {
 		return mHoldListener;
 	}
-	
 	public ActionListener getHitListener() {
 		return mHitListener;
 	}
@@ -109,6 +105,13 @@ public class Blackjack {
 	}
 
 	// Start a new game.
-	public void newGame() {}
-
+	public void newGame(int numPlayers) {
+		if(numPlayers <= MAX_SEATS && MAX_SEATS > 0) {
+			setBackgroundText("");
+		}
+	}
+	
+	public void game() {
+		
+	}
 }
