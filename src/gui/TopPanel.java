@@ -1,12 +1,14 @@
 package gui;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import main.Blackjack;
 
 @SuppressWarnings("serial")
 public class TopPanel extends JPanel {
-	JLabel mCurrentPlayer = new JLabel("No Player currently selected.");
 	TopPanel() {
-		add(mCurrentPlayer);
+		// The the player status to the top bar
+		Blackjack game = Blackjack.getInstance();
+		add(game.getCurrentPlayer());
 	}
 }

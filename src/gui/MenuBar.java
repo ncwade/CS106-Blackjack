@@ -8,21 +8,39 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import main.Blackjack;
+
 @SuppressWarnings("serial")
 public class MenuBar extends JMenuBar {
 	MenuBar () {
 		JMenu file = new JMenu("File");
 		file.setMnemonic(KeyEvent.VK_F);
-		JMenuItem eMenuItem = new JMenuItem("Exit");
-		eMenuItem.setMnemonic(KeyEvent.VK_E);
-		eMenuItem.setToolTipText("Exit application");
-		eMenuItem.addActionListener(new ActionListener() {
+
+		JMenuItem newGameMenuItem = new JMenuItem("New Game");
+		newGameMenuItem.setMnemonic(KeyEvent.VK_E);
+		newGameMenuItem.setToolTipText("Start a new game.");
+		newGameMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				Blackjack game = Blackjack.getInstance();
+				game.newGame();
+			}
+		});
+
+		
+		JMenuItem exitMenuItem = new JMenuItem("Exit");
+		exitMenuItem.setMnemonic(KeyEvent.VK_E);
+		exitMenuItem.setToolTipText("Exit application");
+		exitMenuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				System.exit(0);
 			}
 		});
-		file.add(eMenuItem);
+
+		file.add(newGameMenuItem);
+		file.add(exitMenuItem);
+
 		add(file);
 	}
 }
