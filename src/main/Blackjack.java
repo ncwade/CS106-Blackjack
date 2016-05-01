@@ -28,7 +28,7 @@ public class Blackjack {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			if (mHumanInteractionNeeded) {
-				
+				mHumanInteractionNeeded = false;
 			}
 		}
 	};
@@ -37,7 +37,25 @@ public class Blackjack {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			if (mHumanInteractionNeeded) {
-				
+				mHumanInteractionNeeded = false;
+			}
+		}
+	};
+	
+	private ActionListener mHitListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			if (mHumanInteractionNeeded) {
+				mHumanInteractionNeeded = false;
+			}
+		}
+	};
+	
+	private ActionListener mHoldListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			if (mHumanInteractionNeeded) {
+				mHumanInteractionNeeded = false;
 			}
 		}
 	};
@@ -75,9 +93,18 @@ public class Blackjack {
 		return mDoubleListener;
 	}
 	
+	public ActionListener getHoldListener() {
+		return mHoldListener;
+	}
+	
+	public ActionListener getHitListener() {
+		return mHitListener;
+	}
+	
 	public void setHumanBet(int betValue) {
 		if (mHumanInteractionNeeded) {
 			mHumanBet = betValue;
+			mHumanInteractionNeeded = false;
 		}
 	}
 

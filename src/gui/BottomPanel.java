@@ -13,6 +13,8 @@ import main.Blackjack;
 @SuppressWarnings("serial")
 public class BottomPanel extends JPanel {
 
+	JButton mHit = new JButton("Hit");
+	JButton mHold = new JButton("Hold");
 	JButton mSplit = new JButton("Split");
 	JButton mDoubleDown = new JButton("Double Down");
 	JButton mBet = new JButton("Bet");
@@ -33,7 +35,11 @@ public class BottomPanel extends JPanel {
 				game.setHumanBet((int) betMap.get(betStrings[betOptions.getSelectedIndex()]));
 			}
 		});
+		mHit.addActionListener(game.getHitListener());
+		mHold.addActionListener(game.getHoldListener());
 		
+		add(mHit);
+		add(mHold);
 		add(mSplit);
 		add(mDoubleDown);
 		add(mBet);
