@@ -1,17 +1,17 @@
 package gui;
 
 import java.awt.BorderLayout;
-
 import javax.swing.*;
+import main.Blackjack;
 
 @SuppressWarnings("serial")
 public class BlackJackGUI extends JFrame {
 	MenuBar mMenubar = new MenuBar();
 	JPanel mTopPanel = new TopPanel();
-	JPanel mCenterPanel = new CenterPane();
 	JPanel mBottomPanel = new BottomPanel(); 
 	
 	public BlackJackGUI() {
+		Blackjack game = Blackjack.getInstance();
 		setLayout(new BorderLayout());
 		
 		// Configure the main frame.
@@ -24,7 +24,7 @@ public class BlackJackGUI extends JFrame {
 		add(mTopPanel,BorderLayout.PAGE_START);
 
 		// Build the center panel.
-		add(mCenterPanel,BorderLayout.CENTER);
+		add(game.getBackground(),BorderLayout.CENTER);
 		
 		// Build out the bottom control bar.
 		add(mBottomPanel,BorderLayout.PAGE_END);

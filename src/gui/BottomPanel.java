@@ -44,5 +44,6 @@ public class BottomPanel extends JPanel {
 		add(mDoubleDown);
 		add(mBet);
 		add(betOptions);
+		add(game.getPlayerBank());
 	}
 }

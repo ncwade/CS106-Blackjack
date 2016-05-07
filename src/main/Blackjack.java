@@ -1,11 +1,12 @@
 package main;
 
-import java.awt.Font;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 public class Blackjack {
 	// Constants
@@ -13,14 +14,27 @@ public class Blackjack {
 	// Create our Singleton instance.
 	private static Blackjack instance = new Blackjack();
 	// Ensure other copies of the object cannot be created. This ensures we will throw compile errors if the state is incorrect.
-	private Blackjack(){}
+	private Blackjack(){
+		mBackgroundLabel.setHorizontalTextPosition(JLabel.CENTER);
+		mBackgroundLabel.setLocation(0, 0);
+		mBackground.add(mPlayerCards,BorderLayout.SOUTH);
+		mBackground.add(mDealerCards,BorderLayout.NORTH);
+		ImageIcon test = new ImageIcon("resources/2c.jpg");
+		mDealerCards.add(new JLabel(test, JLabel.CENTER));
+		mPlayerCards.add(new JLabel(test, JLabel.CENTER));
+	}
 	// Return a handle to our only object.
 	public static Blackjack getInstance(){return instance;}
 
 	// Graphical components.
-	private JLabel mBackground = new JLabel("Please use the menu bar above to start a game.");
+	private JPanel mBackground = new JPanel(new BorderLayout());
+	private JLabel mBackgroundLabel = new JLabel("");
 	private JLabel mCurrentPlayer = new JLabel("No Player currently selected.");
+	private JLabel mPlayerBank = new JLabel("$500");
 	
+	private JPanel mPlayerCards = new JPanel();
+	private JPanel mDealerCards = new JPanel();
+
 	// Non-GUI components.
 	boolean mHumanInteractionNeeded = false;
 	int mHumanBet = 0;
@@ -59,20 +73,12 @@ public class Blackjack {
 		}
 	};
 	// Getters/Setters for the various member variables.
-	public JLabel getBackground() {
-		mBackground.setIcon(new ImageIcon("resources/felt.jpg"));
-		mBackground.setHorizontalTextPosition(JLabel.CENTER);
-		mBackground.setSize(300, 35);
-		mBackground.setFont(new Font(mBackground.getFont().getName(), Font.PLAIN, 30));
+	public JPanel getBackground() {
 		return mBackground;
 	}
 
-	public void setBackgroundText(String str) {
-		mBackground.setIcon(new ImageIcon("resources/felt.jpg"));
-		mBackground.setHorizontalTextPosition(JLabel.CENTER);
-		mBackground.setSize(300, 35);
-		mBackground.setFont(new Font(mBackground.getFont().getName(), Font.PLAIN, 30));
-		mBackground.setText(str);
+	public JLabel getPlayerBank() {
+		return mPlayerBank;
 	}
 
 	public JLabel getCurrentPlayer() {
@@ -107,7 +113,6 @@ public class Blackjack {
 	// Start a new game.
 	public void newGame(int numPlayers) {
 		if(numPlayers <= MAX_SEATS && MAX_SEATS > 0) {
-			setBackgroundText("");
 		}
 	}
 	

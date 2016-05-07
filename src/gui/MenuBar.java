@@ -24,8 +24,8 @@ public class MenuBar extends JMenuBar {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				Blackjack game = Blackjack.getInstance();
-				String str = JOptionPane.showInputDialog("Number of human players?");
-				game.newGame(Integer.parseInt(str));
+				// String str = JOptionPane.showInputDialog("Number of human players?");
+				game.newGame(1);
 				game.game();
 			}
 		});
