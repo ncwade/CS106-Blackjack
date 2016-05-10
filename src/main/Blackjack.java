@@ -9,8 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import cards.Shoe;
-import gui.DealerPanel;
-import gui.PlayerPanel;
+import gui.CardPanel;
 
 public class Blackjack {
 	// Constants
@@ -35,8 +34,8 @@ public class Blackjack {
 	private JLabel mCurrentPlayer = new JLabel("No Player currently selected.");
 	private JLabel mPlayerBank = new JLabel("$500");
 	
-	private PlayerPanel mPlayerHand = new PlayerPanel();
-	private DealerPanel mDealerHand = new DealerPanel();
+	private CardPanel mPlayerHand = new CardPanel();
+	private CardPanel mDealerHand = new CardPanel();
 
 	// Non-GUI components.
 	boolean mHumanInteractionNeeded = false;
