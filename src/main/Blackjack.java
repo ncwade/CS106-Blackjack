@@ -8,36 +8,40 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import cards.Shoe;
+import gui.DealerPanel;
+import gui.PlayerPanel;
+
 public class Blackjack {
 	// Constants
-	final static int MAX_SEATS = 3;
+	final static int MAX_SEATS = 1;
 	// Create our Singleton instance.
 	private static Blackjack instance = new Blackjack();
 	// Ensure other copies of the object cannot be created. This ensures we will throw compile errors if the state is incorrect.
 	private Blackjack(){
-		mBackgroundLabel.setHorizontalTextPosition(JLabel.CENTER);
-		mBackgroundLabel.setLocation(0, 0);
-		mBackground.add(mPlayerCards,BorderLayout.SOUTH);
-		mBackground.add(mDealerCards,BorderLayout.NORTH);
-		ImageIcon test = new ImageIcon("resources/2c.jpg");
-		mDealerCards.add(new JLabel(test, JLabel.CENTER));
-		mPlayerCards.add(new JLabel(test, JLabel.CENTER));
+		mShoe = new Shoe(3);
+		mBackground.setOpaque(false);
+		mDealerHand.setOpaque(false);
+		mPlayerHand.setOpaque(false);
+
+		mBackground.add(mPlayerHand,BorderLayout.SOUTH);
+		mBackground.add(mDealerHand,BorderLayout.NORTH);
 	}
 	// Return a handle to our only object.
 	public static Blackjack getInstance(){return instance;}
 
 	// Graphical components.
 	private JPanel mBackground = new JPanel(new BorderLayout());
-	private JLabel mBackgroundLabel = new JLabel("");
 	private JLabel mCurrentPlayer = new JLabel("No Player currently selected.");
 	private JLabel mPlayerBank = new JLabel("$500");
 	
-	private JPanel mPlayerCards = new JPanel();
-	private JPanel mDealerCards = new JPanel();
+	private PlayerPanel mPlayerHand = new PlayerPanel();
+	private DealerPanel mDealerHand = new DealerPanel();
 
 	// Non-GUI components.
 	boolean mHumanInteractionNeeded = false;
 	int mHumanBet = 0;
+	Shoe mShoe;
 	
 	// Action handlers.
 	private ActionListener mSplitListener = new ActionListener() {
@@ -111,9 +115,9 @@ public class Blackjack {
 	}
 
 	// Start a new game.
-	public void newGame(int numPlayers) {
-		if(numPlayers <= MAX_SEATS && MAX_SEATS > 0) {
-		}
+	public void newGame() {
+		mShoe = new Shoe(3);
+		mDealerHand.addCard(mShoe.draw().toString());
 	}
 	
 	public void game() {

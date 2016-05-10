@@ -1,18 +1,18 @@
 package cards;
 
 public enum Suit {
-	HEARTS(0),
-	DIAMONDS(1),
-	SPADES(2),
-	CLUBS(3);
+	HEARTS("h"),
+	DIAMONDS("d"),
+	SPADES("s"),
+	CLUBS("c");
 	
-	private final int mValue;
+	private final String mValue;
 	
-	Suit(int value) {
+	Suit(String value) {
 		mValue = value;
 	}
 	
-	public int getValue() {
+	public String getValue() {
 		return mValue;
 	}
 }

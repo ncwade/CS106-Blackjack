@@ -13,24 +13,29 @@ public class BlackJackGUI extends JFrame {
 	public BlackJackGUI() {
 		Blackjack game = Blackjack.getInstance();
 		setLayout(new BorderLayout());
+	    setLocationRelativeTo(null);
+	    setDefaultCloseOperation(EXIT_ON_CLOSE);
+	    setVisible(true);
+	    JLabel background = new JLabel(new ImageIcon("resources/felt.jpg"));
+	    background.setOpaque(false);
+		setContentPane(background);
 		
 		// Configure the main frame.
 		setTitle("BlackJack");
+		setSize(999,899);
 		setSize(1000,900);
 
 		setJMenuBar(mMenubar);
 		
+		background.setLayout(new BorderLayout());
 		// Build the top panel.
-		add(mTopPanel,BorderLayout.PAGE_START);
+		background.add(mTopPanel,BorderLayout.PAGE_START);
 
 		// Build the center panel.
-		add(game.getBackground(),BorderLayout.CENTER);
+		background.add(game.getBackground(),BorderLayout.CENTER);
 		
 		// Build out the bottom control bar.
-		add(mBottomPanel,BorderLayout.PAGE_END);
-		
-		// Now the user can even see it!
-		setVisible(true);
+		background.add(mBottomPanel,BorderLayout.PAGE_END);
 	}
 	
 	public static void main(String[] args) {
