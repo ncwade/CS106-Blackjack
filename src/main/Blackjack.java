@@ -158,7 +158,6 @@ public class Blackjack {
 			// Draw dealt player cards
 			for(Card card : mPlayerCards) {
 				mPlayerHand.addCard(card.toString());
-				System.out.println(card.toString());
 			}
 
 			// Draw a hidden card & a visible one for the dealer.
