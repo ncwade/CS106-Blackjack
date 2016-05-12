@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -32,7 +31,7 @@ public class Blackjack {
 	// Graphical components.
 	private JPanel mBackground = new JPanel(new BorderLayout());
 	private JLabel mCurrentPlayer = new JLabel("No Player currently selected.");
-	private JLabel mPlayerBank = new JLabel("$500");
+	private JLabel mPlayerBank = new JLabel("$0");
 	
 	private CardPanel mPlayerHand = new CardPanel();
 	private CardPanel mDealerHand = new CardPanel();
@@ -40,6 +39,7 @@ public class Blackjack {
 	// Non-GUI components.
 	boolean mHumanInteractionNeeded = false;
 	int mHumanBet = 0;
+	int mHumanBank = 0;
 	Shoe mShoe;
 	
 	// Action handlers.
@@ -51,6 +51,7 @@ public class Blackjack {
 			}
 		}
 	};
+
 	private ActionListener mDoubleListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent event) {
@@ -59,6 +60,7 @@ public class Blackjack {
 			}
 		}
 	};
+
 	private ActionListener mHitListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent event) {
@@ -67,6 +69,7 @@ public class Blackjack {
 			}
 		}
 	};
+
 	private ActionListener mHoldListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent event) {
@@ -75,6 +78,7 @@ public class Blackjack {
 			}
 		}
 	};
+
 	// Getters/Setters for the various member variables.
 	public JPanel getBackground() {
 		return mBackground;
@@ -115,11 +119,16 @@ public class Blackjack {
 
 	// Start a new game.
 	public void newGame() {
+		// initialize everything we need.
 		mShoe = new Shoe(3);
-		mDealerHand.addCard(mShoe.draw().toString());
+		mHumanBank = 500;
+		mPlayerBank.setText("$500");
+		// game()
 	}
 	
 	public void game() {
-		
+		while (mHumanBank > 0) {
+			// Do game stuff here.
+		}
 	}
 }
