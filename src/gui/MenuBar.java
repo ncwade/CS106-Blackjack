@@ -24,7 +24,6 @@ public class MenuBar extends JMenuBar {
 			public void actionPerformed(ActionEvent event) {
 				Blackjack game = Blackjack.getInstance();
 				game.newGame();
-				game.game();
 			}
 		});
 

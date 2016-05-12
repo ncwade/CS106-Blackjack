@@ -3,10 +3,12 @@ package main;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import cards.Card;
 import cards.Shoe;
 import gui.CardPanel;
 
@@ -41,6 +43,8 @@ public class Blackjack {
 	int mHumanBet = 0;
 	int mHumanBank = 0;
 	Shoe mShoe;
+	ArrayList<Card> mPlayerCards = new ArrayList<Card>();
+	ArrayList<Card> mDealerCards = new ArrayList<Card>();
 	
 	// Action handlers.
 	private ActionListener mSplitListener = new ActionListener() {
@@ -123,12 +127,33 @@ public class Blackjack {
 		mShoe = new Shoe(3);
 		mHumanBank = 500;
 		mPlayerBank.setText("$500");
-		// game()
+		mPlayerCards = new ArrayList<Card>();
+		mDealerCards = new ArrayList<Card>();
+		game();
 	}
 	
 	public void game() {
 		while (mHumanBank > 0) {
-			// Do game stuff here.
+			
+			// Reset the hands.
+			mPlayerHand.clear();
+			mDealerHand.clear();
+
+			// Deal
+			mPlayerCards.add(mShoe.draw());
+			mDealerCards.add(mShoe.draw());
+			mPlayerCards.add(mShoe.draw());
+			mDealerCards.add(mShoe.draw());
+			
+			// Draw dealt player cards
+			for(Card card : mPlayerCards) {
+				mPlayerHand.addCard(card.toString());
+			}
+			
+			// Draw a hidden card & a visible one for the dealer.
+			mDealerHand.addCard("resources/cards/b.gif");
+			mDealerHand.addCard(mDealerCards.get(1).toString());
+			break;
 		}
 	}
 }

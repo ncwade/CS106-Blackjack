@@ -11,4 +11,10 @@ public class CardPanel extends JPanel {
 		super.add(new JLabel(img, JLabel.CENTER));
 		super.revalidate();
 	}
+	
+	public void clear() {
+		super.removeAll();
+		super.revalidate();
+		super.repaint();
+	}
 }
