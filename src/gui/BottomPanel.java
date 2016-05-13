@@ -14,7 +14,7 @@ import main.Blackjack;
 public class BottomPanel extends JPanel {
 
 	JButton mHit = new JButton("Hit");
-	JButton mHold = new JButton("Hold");
+	JButton mStand = new JButton("Stand");
 	JButton mSplit = new JButton("Split");
 	JButton mDoubleDown = new JButton("Double Down");
 	JButton mBet = new JButton("Bet");
@@ -36,10 +36,10 @@ public class BottomPanel extends JPanel {
 			}
 		});
 		mHit.addActionListener(game.getHitListener());
-		mHold.addActionListener(game.getHoldListener());
+		mStand.addActionListener(game.getHoldListener());
 		
 		add(mHit);
-		add(mHold);
+		add(mStand);
 		add(mSplit);
 		add(mDoubleDown);
 		add(mBet);
