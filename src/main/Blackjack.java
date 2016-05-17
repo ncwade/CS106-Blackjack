@@ -51,7 +51,9 @@ public class Blackjack {
 	// Non-GUI components.
 	Thread mGameThread = new Thread();
 	boolean mHumanInteractionNeeded = false;
+	boolean mHasDoubled = false;
 	BetterSemaphore mHumanBetLock = new BetterSemaphore(1);
+	BetterSemaphore mHumanFinishHand = new BetterSemaphore(1);
 	int mHumanBet = 0;
 	int mHumanBank = 0;
 	int mDealerBank = 0;
@@ -73,7 +75,10 @@ public class Blackjack {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			if (mHumanInteractionNeeded) {
-				mHumanInteractionNeeded = false;
+				if(!mHasDoubled) {
+					mHumanBet += mHumanBet;
+					mHasDoubled = true;
+				}
 			}
 		}
 	};
@@ -87,6 +92,7 @@ public class Blackjack {
 				mPlayerHand.addCard(card.toString());
 				if(mPlayerCards.bust()) {
 					mHumanInteractionNeeded = false;
+					mHumanFinishHand.release();
 				}
 			}
 		}
@@ -96,7 +102,7 @@ public class Blackjack {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			if (mHumanInteractionNeeded) {
-				mHumanInteractionNeeded = false;
+				mHumanFinishHand.release();
 			}
 		}
 	};
@@ -117,19 +123,7 @@ public class Blackjack {
 	public void setCurrentPlayer(String str) {
 		mCurrentPlayer.setText(str);
 	}
-	
-	public ActionListener getSplitListener() {
-		return mSplitListener;
-	}
-	public ActionListener getDoubleListener() {
-		return mDoubleListener;
-	}
-	public ActionListener getHoldListener() {
-		return mHoldListener;
-	}
-	public ActionListener getHitListener() {
-		return mHitListener;
-	}
+
 	public void setHumanBet(int betValue) {
 		if (!mHumanBetLock.tryAcquire()) {
 			if (betValue <= mHumanBank) {
@@ -147,6 +141,7 @@ public class Blackjack {
 	// Start a new game.
 	public void newGame() {
 		// initialize everything we need.
+		mGameThread.stop();
 		mShoe = new Shoe(3);
 		mHumanBank = 500;
 		mDealerBank = 100000;
@@ -154,9 +149,12 @@ public class Blackjack {
 		mPlayerCards = new Hand("Player");
 		mDealerCards = new Hand("Dealer");
 		mCommunicate.setText("");
-		new Thread(() -> {
-			game();
-		}).start();
+		mGameThread = new Thread(new Runnable() {
+			public void run() {
+				game();
+			}
+		});
+		mGameThread.start();
 	}
 	
 	public void game() {
@@ -186,16 +184,31 @@ public class Blackjack {
 			mDealerHand.addCard("resources/cards/b.gif");
 			mDealerHand.addCard(mDealerCards.get(1).toString());
 
-			// Update current deck count
-			mCommunicate.setText("Current deck count: "+mShoe.getCount().toString());
-
 			// Get human decisions.
+			mHumanFinishHand.drainPermits();
+			mHasDoubled = false;
 			mHumanInteractionNeeded = true;
+			mHumanFinishHand.acquire();
+			mHumanInteractionNeeded = false;
 
 			// Get dealer decision
 
 			// Declare winner & update as needed.
 			break;
 		}
+	}
+	
+
+	public ActionListener getSplitListener() {
+		return mSplitListener;
+	}
+	public ActionListener getDoubleListener() {
+		return mDoubleListener;
+	}
+	public ActionListener getHoldListener() {
+		return mHoldListener;
+	}
+	public ActionListener getHitListener() {
+		return mHitListener;
 	}
 }
