@@ -17,5 +17,13 @@ public class BetterSemaphore extends Semaphore {
 			e.printStackTrace();
 		}
 	}
+	public void acquire(int permits) {
+		try {
+			super.acquire(permits);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 }

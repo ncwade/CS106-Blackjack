@@ -91,6 +91,7 @@ public class Blackjack {
 				mPlayerCards.add(card);
 				mPlayerHand.addCard(card.toString());
 				if(mPlayerCards.bust()) {
+					mCurrentPlayer.setText("You bust!");
 					mHumanInteractionNeeded = false;
 					mHumanFinishHand.release();
 				}
@@ -101,9 +102,7 @@ public class Blackjack {
 	private ActionListener mHoldListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			if (mHumanInteractionNeeded) {
-				mHumanFinishHand.release();
-			}
+			mHumanFinishHand.release();
 		}
 	};
 
@@ -135,6 +134,8 @@ public class Blackjack {
 			}
 			mPlayerBank.setText("$"+mHumanBank);
 			mHumanBetLock.release();
+		} else {
+			mHumanBetLock.release();
 		}
 	}
 
@@ -163,10 +164,13 @@ public class Blackjack {
 			// Reset the hands.
 			mPlayerHand.clear();
 			mDealerHand.clear();
+			mPlayerCards.clear();
+			mDealerCards.clear();
 			
-			mHumanBetLock.drainPermits();
+			mHumanBetLock.acquire(1);;
 			mCurrentPlayer.setText("Please set bet value...");
-			mHumanBetLock.acquire();
+			mHumanBetLock.acquire(1);
+			mHumanBetLock.release(1);
 			mCurrentPlayer.setText("");
 
 			// Deal
@@ -192,12 +196,54 @@ public class Blackjack {
 			mHumanInteractionNeeded = false;
 
 			// Get dealer decision
-
-			// Declare winner & update as needed.
-			break;
+			while(mDealerCards.count() < 17 && !mPlayerCards.bust()) {
+				Card card = mShoe.draw();
+				mDealerHand.addCard(card.toString());
+				mDealerCards.add(card);
+				try {
+					Thread.sleep(250);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			if(winner(mPlayerCards,mDealerCards) == mPlayerCards.name()) {
+				mCurrentPlayer.setText("The winner is: "+ mPlayerCards.name());
+				mHumanBank += mHumanBet * 2;
+			} else if (winner(mPlayerCards,mDealerCards) == mDealerCards.name()) {
+				mCurrentPlayer.setText("The winner is: "+ mDealerCards.name());
+				mDealerBank += mHumanBet;
+			} else {
+				mCurrentPlayer.setText("It was a tie!");
+				mHumanBank += mHumanBet;
+			}
+			mDealerHand.clear();
+			for(Card card : mDealerCards) {
+				mDealerHand.addCard(card.toString());
+			}
+			mHumanBet = 0;
+			mPlayerBank.setText("$"+mHumanBank);
+			mCommunicate.setText("Select the Stand button to start the next hand.");
+			mHumanFinishHand.drainPermits();
+			mHumanFinishHand.acquire();
+			mCommunicate.setText("");
 		}
 	}
 	
+	private String winner(Hand player, Hand dealer) {
+		Hand winner = new Hand("");
+		if(player.bust() && !dealer.bust()) {
+			winner = dealer;
+		} else if (!player.bust() && dealer.bust()) {
+			winner = player;
+		} else if (player.count() > dealer.count()) {
+			winner = player;
+		} else if (player.count() < dealer.count()) {
+			winner = dealer;
+		}
+		// Leave it null if there is a tie.
+		return winner.name();
+	}
 
 	public ActionListener getSplitListener() {
 		return mSplitListener;
