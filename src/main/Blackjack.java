@@ -4,14 +4,15 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import cards.Card;
+import cards.Hand;
 import cards.Shoe;
 import gui.CardPanel;
+import util.BetterSemaphore;
 
 public class Blackjack {
 	// Constants
@@ -48,13 +49,15 @@ public class Blackjack {
 	private JPanel mCenter = new JPanel();
 
 	// Non-GUI components.
+	Thread mGameThread = new Thread();
 	boolean mHumanInteractionNeeded = false;
+	BetterSemaphore mHumanBetLock = new BetterSemaphore(1);
 	int mHumanBet = 0;
 	int mHumanBank = 0;
 	int mDealerBank = 0;
 	Shoe mShoe;
-	ArrayList<Card> mPlayerCards = new ArrayList<Card>();
-	ArrayList<Card> mDealerCards = new ArrayList<Card>();
+	Hand mPlayerCards = new Hand("");
+	Hand mDealerCards = new Hand("Dealer");
 	
 	// Action handlers.
 	private ActionListener mSplitListener = new ActionListener() {
@@ -79,7 +82,12 @@ public class Blackjack {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			if (mHumanInteractionNeeded) {
-				mHumanInteractionNeeded = false;
+				Card card = mShoe.draw();
+				mPlayerCards.add(card);
+				mPlayerHand.addCard(card.toString());
+				if(mPlayerCards.bust()) {
+					mHumanInteractionNeeded = false;
+				}
 			}
 		}
 	};
@@ -123,9 +131,16 @@ public class Blackjack {
 		return mHitListener;
 	}
 	public void setHumanBet(int betValue) {
-		if (mHumanInteractionNeeded) {
-			mHumanBet = betValue;
-			mHumanInteractionNeeded = false;
+		if (!mHumanBetLock.tryAcquire()) {
+			if (betValue <= mHumanBank) {
+				mHumanBet = betValue;
+				mHumanBank -= betValue;
+			} else {
+				mHumanBet = mHumanBank;
+				mHumanBank = 0;
+			}
+			mPlayerBank.setText("$"+mHumanBank);
+			mHumanBetLock.release();
 		}
 	}
 
@@ -136,18 +151,25 @@ public class Blackjack {
 		mHumanBank = 500;
 		mDealerBank = 100000;
 		mPlayerBank.setText("$500");
-		mPlayerCards = new ArrayList<Card>();
-		mDealerCards = new ArrayList<Card>();
+		mPlayerCards = new Hand("Player");
+		mDealerCards = new Hand("Dealer");
 		mCommunicate.setText("");
-		game();
+		new Thread(() -> {
+			game();
+		}).start();
 	}
 	
 	public void game() {
-		while (mHumanBank > 0 && mDealerBank > 0) {
+		while (mHumanBank > 0 && mDealerBank > 0 && !mShoe.empty()) {
 			
 			// Reset the hands.
 			mPlayerHand.clear();
 			mDealerHand.clear();
+			
+			mHumanBetLock.drainPermits();
+			mCurrentPlayer.setText("Please set bet value...");
+			mHumanBetLock.acquire();
+			mCurrentPlayer.setText("");
 
 			// Deal
 			mPlayerCards.add(mShoe.draw());
@@ -167,7 +189,8 @@ public class Blackjack {
 			// Update current deck count
 			mCommunicate.setText("Current deck count: "+mShoe.getCount().toString());
 
-			// Get human decision
+			// Get human decisions.
+			mHumanInteractionNeeded = true;
 
 			// Get dealer decision
 

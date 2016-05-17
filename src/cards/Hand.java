@@ -1,22 +1,18 @@
-package players;
+package cards;
 
 import java.util.ArrayList;
 
-import cards.Card;
-
-public class Hand {
-	private ArrayList<Card> cards;
+public class Hand extends ArrayList<Card>{
 	private String name;
 	
 	public Hand(String s){
-		cards = new ArrayList<Card>();
 		name = s;
 	}
 	
 	public boolean bust(){
 		//if hand total > 21
 		int total = 0;
-		for(Card card : cards)
+		for(Card card : this)
 			total += card.getValue();
 		return total > 21;
 	}
@@ -24,7 +20,7 @@ public class Hand {
 	public boolean canSplit(){
 		//if both cards are same value then allow split
 		// name + 2 added 
-		return cards.size() == 2 && cards.get(0) == cards.get(1);
+		return this.size() == 2 && this.get(0) == this.get(1);
 	}
 	
 	public Hand split(){
@@ -32,13 +28,8 @@ public class Hand {
 			throw new IllegalStateException();
 		
 		Hand newHand = new Hand(name);
-		newHand.add(cards.remove(0));
+		newHand.add(this.remove(0));
 		return newHand;
-	}
-	
-	public void add(Card card){
-		cards.add(card);
-	}
-	
+	}	
 	
 }
