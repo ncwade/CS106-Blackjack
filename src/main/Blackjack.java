@@ -25,6 +25,7 @@ public class Blackjack {
 		mBackground.setOpaque(false);
 		mDealerHand.setOpaque(false);
 		mPlayerHand.setOpaque(false);
+		mPlayerHand1.setOpaque(false);
 		mCenter.setOpaque(false);
 		mCommunicate.setText("Use the New Game menu option to start a game");
 		mCommunicate.setHorizontalTextPosition(JLabel.CENTER);
@@ -32,6 +33,7 @@ public class Blackjack {
 		mCommunicate.setFont(new Font(mBackground.getFont().getName(), Font.PLAIN, 15));
 		mCenter.add(mCommunicate);
 		mBackground.add(mPlayerHand,BorderLayout.SOUTH);
+		mBackground.add(mPlayerHand1,BorderLayout.WEST);
 		mBackground.add(mDealerHand,BorderLayout.NORTH);
 		mBackground.add(mCenter,BorderLayout.CENTER);
 	}
@@ -45,6 +47,7 @@ public class Blackjack {
 	private JLabel mCommunicate = new JLabel("");
 	
 	private CardPanel mPlayerHand = new CardPanel();
+	private CardPanel mPlayerHand1 = new CardPanel();
 	private CardPanel mDealerHand = new CardPanel();
 	private JPanel mCenter = new JPanel();
 
@@ -59,13 +62,18 @@ public class Blackjack {
 	int mDealerBank = 0;
 	Shoe mShoe;
 	Hand mPlayerCards = new Hand("");
+	Hand mPlayerCards1 = new Hand("");
 	Hand mDealerCards = new Hand("Dealer");
+	String name = "";
 	
 	// Action handlers.
 	private ActionListener mSplitListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			if (mHumanInteractionNeeded) {
+				Card card = mPlayerCards.get(0);
+				mPlayerCards1.add(card);
+				mPlayerHand1.addCard(card.toString());
 				mHumanInteractionNeeded = false;
 			}
 		}
@@ -78,6 +86,11 @@ public class Blackjack {
 				if(!mHasDoubled) {
 					mHumanBet += mHumanBet;
 					mHasDoubled = true;
+					Card card = mShoe.draw();
+					mPlayerCards.add(card);
+					mPlayerHand.addCard(card.toString());
+					mHumanInteractionNeeded = false;
+					mHumanFinishHand.release();
 				}
 			}
 		}

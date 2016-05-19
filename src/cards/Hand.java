@@ -1,5 +1,6 @@
 package cards;
 
+import java.awt.Component;
 import java.util.ArrayList;
 
 public class Hand extends ArrayList<Card>{
@@ -75,10 +76,15 @@ public class Hand extends ArrayList<Card>{
 		if(!canSplit())
 			throw new IllegalStateException();
 		
-		Hand newHand = new Hand(mName);
+		Hand newHand = new Hand(mName+"1");
 		newHand.add(this.remove(0));
 		return newHand;
 	}	
+	
+	public Hand getHand(String name){
+		Hand sHand = new Hand(name);
+		return sHand;
+	}
 	
 	public String name() {
 		return mName;
