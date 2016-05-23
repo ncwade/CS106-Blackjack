@@ -1,6 +1,7 @@
 package main;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,15 +26,19 @@ public class Blackjack {
 		mBackground.setOpaque(false);
 		mDealerHand.setOpaque(false);
 		mPlayerHand.setOpaque(false);
-		mPlayerHand1.setOpaque(false);
+		mSplitHand.setOpaque(false);
+		mPlayerArea.setOpaque(false);
+		mSeperator.setOpaque(false);
 		mCenter.setOpaque(false);
 		mCommunicate.setText("Use the New Game menu option to start a game");
 		mCommunicate.setHorizontalTextPosition(JLabel.CENTER);
 		mCommunicate.setSize(300, 35);
 		mCommunicate.setFont(new Font(mBackground.getFont().getName(), Font.PLAIN, 15));
 		mCenter.add(mCommunicate);
-		mBackground.add(mPlayerHand,BorderLayout.SOUTH);
-		mBackground.add(mPlayerHand1,BorderLayout.WEST);
+		mPlayerArea.add(mPlayerHand);
+		mPlayerArea.add(mSeperator);
+		mPlayerArea.add(mSplitHand);
+		mBackground.add(mPlayerArea,BorderLayout.SOUTH);
 		mBackground.add(mDealerHand,BorderLayout.NORTH);
 		mBackground.add(mCenter,BorderLayout.CENTER);
 	}
@@ -42,12 +47,14 @@ public class Blackjack {
 
 	// Graphical components.
 	private JPanel mBackground = new JPanel(new BorderLayout());
+	private JPanel mPlayerArea = new JPanel(new FlowLayout(FlowLayout.CENTER));
 	private JLabel mCurrentPlayer = new JLabel("No Player currently selected.");
 	private JLabel mPlayerBank = new JLabel("$0");
 	private JLabel mCommunicate = new JLabel("");
-	
+
+	private CardPanel mSeperator = new CardPanel();
 	private CardPanel mPlayerHand = new CardPanel();
-	private CardPanel mPlayerHand1 = new CardPanel();
+	private CardPanel mSplitHand = new CardPanel();
 	private CardPanel mDealerHand = new CardPanel();
 	private JPanel mCenter = new JPanel();
 
@@ -62,7 +69,7 @@ public class Blackjack {
 	int mDealerBank = 0;
 	Shoe mShoe;
 	Hand mPlayerCards = new Hand("");
-	Hand mPlayerCards1 = new Hand("");
+	Hand mSplitCards = new Hand("");
 	Hand mDealerCards = new Hand("Dealer");
 	String name = "";
 	
@@ -71,10 +78,18 @@ public class Blackjack {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			if (mHumanInteractionNeeded) {
-				Card card = mPlayerCards.get(0);
-				mPlayerCards1.add(card);
-				mPlayerHand1.addCard(card.toString());
-				mHumanInteractionNeeded = false;
+				if(mPlayerCards.canSplit()) {
+					mSplitCards = mPlayerCards.split();
+					for(Card card : mSplitCards) {
+						mSplitHand.addCard(card.toString());
+					}
+					mPlayerHand.clear();
+					for(Card card : mPlayerCards) {
+						mPlayerHand.addCard(card.toString());
+					}
+
+					mHumanBet += mHumanBet;
+				}
 			}
 		}
 	};
@@ -179,6 +194,8 @@ public class Blackjack {
 			mDealerHand.clear();
 			mPlayerCards.clear();
 			mDealerCards.clear();
+			mSeperator.clear();
+			mSplitHand.clear();
 			
 			mHumanBetLock.acquire(1);;
 			mCurrentPlayer.setText("Please set bet value...");

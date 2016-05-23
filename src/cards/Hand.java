@@ -38,7 +38,7 @@ public class Hand extends ArrayList<Card>{
 	public boolean canSplit(){
 		//if both cards are same value then allow split
 		// name + 2 added 
-		return this.size() == 2 && this.get(0) == this.get(1);
+		return this.size() == 2 && this.get(0).getValue() == this.get(1).getValue();
 	}
 	
 	public boolean add(Card card) {
