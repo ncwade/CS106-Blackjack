@@ -213,10 +213,12 @@ public class Blackjack {
 				if(output == JOptionPane.YES_OPTION) {
 					Hand split = player.getHand(0).split();
 					player.setHand(split, 1);
+					player.getHand(1).add(mShoe.draw());
 					for(Card card : player.getHand(1)) {
 						((CardPanel) mPlayerPanels.get(1)).addCard(card.toString());
 					}
 					mPlayerPanels.get(0).clear();
+					player.getHand(0).add(mShoe.draw());
 					for(Card card : player.getHand(0)) {
 						((CardPanel) mPlayerPanels.get(0)).addCard(card.toString());
 					}
