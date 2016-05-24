@@ -243,7 +243,13 @@ public class Blackjack {
 			// Get dealer decision
 			while(dealer.getHand(0).count() < 17) {
 				// Check all of the player's hands to see if they bust.
-				if(player.getHand(0).bust() && player.getHand(1).bust()) {
+				boolean isAllBust = true;
+				for(Hand hand : player.getHands()) {
+					if (!hand.bust()) {
+						isAllBust = false;
+					}
+				}
+				if(isAllBust) {
 					break;
 				}
 				
