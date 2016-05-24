@@ -1,15 +1,13 @@
 package players;
 
-public abstract interface Player {
+import cards.Hand;
 
-	public abstract String mName();
-	public abstract int mCash();
-	public abstract int mGetHandValue();
-	public abstract int mHit();
-	public abstract int mSeat();
-	public abstract int mHands(int n);
-	public abstract boolean insurance();
-	public abstract boolean doubleDown();
-	public abstract boolean split();
-	
+public abstract interface Player {
+	public Hand getHand(int index);
+	public void setHand(Hand hand, int index);
+	public int getBank();
+	public void setBank(int value);
+	public void setName(String name);
+	public String getName();
+	public void clearHands();
 }

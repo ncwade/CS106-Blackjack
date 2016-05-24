@@ -1,59 +1,71 @@
 package players;
 
+import java.util.ArrayList;
+
+import cards.Hand;
+
 public class HumanPlayer implements Player {
-
+	
+	private ArrayList<Hand> mHands;
+	private int mBank = 0;
+	private String mName;
+	
+	// Singleton
+	public HumanPlayer(String name, int value) {
+		mHands = new ArrayList<Hand>();
+		mName = name;
+		mBank = value;
+		mHands.add(new Hand(mName));
+	}
+	
+	public HumanPlayer() {
+		mHands = new ArrayList<Hand>();
+		mName = "Player";
+		mBank = 500;
+		mHands.add(new Hand(mName));
+	}
+	
+	public ArrayList<Hand> getHands() {
+		return mHands;
+	}
+	
 	@Override
-	public String mName() {
-		// TODO Auto-generated method stub
-		return null;
+	public Hand getHand(int index) {
+		return mHands.get(index);
 	}
 
 	@Override
-	public int mCash() {
-		// TODO Auto-generated method stub
-		return 0;
+	public void setHand(Hand hand, int index) {
+		if(mHands.size() > index) { 
+			mHands.set(index, hand);
+		} else {
+			mHands.add(hand);
+		}
 	}
 
 	@Override
-	public int mGetHandValue() {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getBank() {
+		return mBank;
 	}
 
 	@Override
-	public int mHit() {
-		// TODO Auto-generated method stub
-		return 0;
+	public void setBank(int value) {
+		mBank = value;
+		
+	}
+	@Override
+	public void setName(String name) {
+		mName = name;
+	}
+	@Override
+	public String getName() {
+		return mName;
 	}
 
 	@Override
-	public int mSeat() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int mHands(int n) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public boolean insurance() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean doubleDown() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean split() {
-		// TODO Auto-generated method stub
-		return false;
+	public void clearHands() {
+		mHands.clear();
+		mHands.add(new Hand(mName));
 	}
 
 }

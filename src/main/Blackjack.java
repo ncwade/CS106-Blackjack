@@ -13,11 +13,12 @@ import cards.Card;
 import cards.Hand;
 import cards.Shoe;
 import gui.CardPanel;
+import gui.Spacer;
+import players.Dealer;
+import players.HumanPlayer;
 import util.BetterSemaphore;
 
 public class Blackjack {
-	// Constants
-	final static int MAX_SEATS = 1;
 	// Create our Singleton instance.
 	private static Blackjack instance = new Blackjack();
 	// Ensure other copies of the object cannot be created. This ensures we will throw compile errors if the state is incorrect.
@@ -52,7 +53,7 @@ public class Blackjack {
 	private JLabel mPlayerBank = new JLabel("$0");
 	private JLabel mCommunicate = new JLabel("");
 
-	private CardPanel mSeperator = new CardPanel();
+	private Spacer mSeperator = new Spacer();
 	private CardPanel mPlayerHand = new CardPanel();
 	private CardPanel mSplitHand = new CardPanel();
 	private CardPanel mDealerHand = new CardPanel();
@@ -65,26 +66,23 @@ public class Blackjack {
 	BetterSemaphore mHumanBetLock = new BetterSemaphore(1);
 	BetterSemaphore mHumanFinishHand = new BetterSemaphore(1);
 	int mHumanBet = 0;
-	int mHumanBank = 0;
-	int mDealerBank = 0;
 	Shoe mShoe;
-	Hand mPlayerCards = new Hand("");
-	Hand mSplitCards = new Hand("");
-	Hand mDealerCards = new Hand("Dealer");
-	String name = "";
+	HumanPlayer player;
+	Dealer dealer;
 	
 	// Action handlers.
 	private ActionListener mSplitListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			if (mHumanInteractionNeeded) {
-				if(mPlayerCards.canSplit()) {
-					mSplitCards = mPlayerCards.split();
-					for(Card card : mSplitCards) {
+				if(player.getHand(0).canSplit()) {
+					Hand split = player.getHand(0).split();
+					player.setHand(split, 1);
+					for(Card card : player.getHand(1)) {
 						mSplitHand.addCard(card.toString());
 					}
 					mPlayerHand.clear();
-					for(Card card : mPlayerCards) {
+					for(Card card : player.getHand(0)) {
 						mPlayerHand.addCard(card.toString());
 					}
 
@@ -102,7 +100,7 @@ public class Blackjack {
 					mHumanBet += mHumanBet;
 					mHasDoubled = true;
 					Card card = mShoe.draw();
-					mPlayerCards.add(card);
+					player.getHand(0).add(card);
 					mPlayerHand.addCard(card.toString());
 					mHumanInteractionNeeded = false;
 					mHumanFinishHand.release();
@@ -116,9 +114,9 @@ public class Blackjack {
 		public void actionPerformed(ActionEvent event) {
 			if (mHumanInteractionNeeded) {
 				Card card = mShoe.draw();
-				mPlayerCards.add(card);
+				player.getHand(0).add(card);
 				mPlayerHand.addCard(card.toString());
-				if(mPlayerCards.bust()) {
+				if(player.getHand(0).bust()) {
 					mCurrentPlayer.setText("You bust!");
 					mHumanInteractionNeeded = false;
 					mHumanFinishHand.release();
@@ -146,21 +144,17 @@ public class Blackjack {
 	public JLabel getCurrentPlayer() {
 		return mCurrentPlayer;
 	}
-	
-	public void setCurrentPlayer(String str) {
-		mCurrentPlayer.setText(str);
-	}
 
 	public void setHumanBet(int betValue) {
 		if (!mHumanBetLock.tryAcquire()) {
-			if (betValue <= mHumanBank) {
+			if (betValue <= player.getBank()) {
 				mHumanBet = betValue;
-				mHumanBank -= betValue;
+				player.setBank(player.getBank() - mHumanBet);
 			} else {
-				mHumanBet = mHumanBank;
-				mHumanBank = 0;
+				mHumanBet = (player.getBank());
+				player.setBank(0);
 			}
-			mPlayerBank.setText("$"+mHumanBank);
+			mPlayerBank.setText("$"+player.getBank());
 			mHumanBetLock.release();
 		} else {
 			mHumanBetLock.release();
@@ -172,11 +166,9 @@ public class Blackjack {
 		// initialize everything we need.
 		mGameThread.stop();
 		mShoe = new Shoe(3);
-		mHumanBank = 500;
-		mDealerBank = 100000;
-		mPlayerBank.setText("$500");
-		mPlayerCards = new Hand("Player");
-		mDealerCards = new Hand("Dealer");
+		player = new HumanPlayer();
+		dealer = new Dealer();
+		mPlayerBank.setText("$"+player.getBank());
 		mCommunicate.setText("");
 		mGameThread = new Thread(new Runnable() {
 			public void run() {
@@ -187,14 +179,13 @@ public class Blackjack {
 	}
 	
 	public void game() {
-		while (mHumanBank > 0 && mDealerBank > 0 && !mShoe.empty()) {
+		while (player.getBank() > 0 && dealer.getBank() > 0 && !mShoe.empty()) {
 			
 			// Reset the hands.
 			mPlayerHand.clear();
 			mDealerHand.clear();
-			mPlayerCards.clear();
-			mDealerCards.clear();
-			mSeperator.clear();
+			player.clearHands();
+			dealer.clearHands();
 			mSplitHand.clear();
 			
 			mHumanBetLock.acquire(1);;
@@ -204,19 +195,19 @@ public class Blackjack {
 			mCurrentPlayer.setText("");
 
 			// Deal
-			mPlayerCards.add(mShoe.draw());
-			mDealerCards.add(mShoe.draw());
-			mPlayerCards.add(mShoe.draw());
-			mDealerCards.add(mShoe.draw());
+			player.getHand(0).add(mShoe.draw());
+			dealer.getHand(0).add(mShoe.draw());
+			player.getHand(0).add(mShoe.draw());
+			dealer.getHand(0).add(mShoe.draw());
 			
 			// Draw dealt player cards
-			for(Card card : mPlayerCards) {
+			for(Card card : player.getHand(0)) {
 				mPlayerHand.addCard(card.toString());
 			}
 
 			// Draw a hidden card & a visible one for the dealer.
 			mDealerHand.addCard("resources/cards/b.gif");
-			mDealerHand.addCard(mDealerCards.get(1).toString());
+			mDealerHand.addCard(dealer.getHand(0).get(1).toString());
 
 			// Get human decisions.
 			mHumanFinishHand.drainPermits();
@@ -226,10 +217,10 @@ public class Blackjack {
 			mHumanInteractionNeeded = false;
 
 			// Get dealer decision
-			while(mDealerCards.count() < 17 && !mPlayerCards.bust()) {
+			while(dealer.getHand(0).count() < 17 && !player.getHand(0).bust()) {
 				Card card = mShoe.draw();
 				mDealerHand.addCard(card.toString());
-				mDealerCards.add(card);
+				dealer.getHand(0).add(card);
 				try {
 					Thread.sleep(250);
 				} catch (InterruptedException e) {
@@ -237,42 +228,30 @@ public class Blackjack {
 				}
 			}
 			
-			if(winner(mPlayerCards,mDealerCards) == mPlayerCards.name()) {
-				mCurrentPlayer.setText("The winner is: "+ mPlayerCards.name());
-				mHumanBank += mHumanBet * 2;
-			} else if (winner(mPlayerCards,mDealerCards) == mDealerCards.name()) {
-				mCurrentPlayer.setText("The winner is: "+ mDealerCards.name());
-				mDealerBank += mHumanBet;
-			} else {
-				mCurrentPlayer.setText("It was a tie!");
-				mHumanBank += mHumanBet;
+			for(Hand hand : player.getHands()) {
+				if(hand.compareTo(dealer.getHand(0)) > 0) {
+					mCurrentPlayer.setText("The winner is: "+ player.getName());
+					player.setBank(player.getBank() + mHumanBet);
+				} else if (hand.compareTo(dealer.getHand(0)) < 0) {
+					mCurrentPlayer.setText("The winner is: "+ dealer.getHand(0).name());
+					dealer.setBank(dealer.getBank() + mHumanBet);
+				} else {
+					mCurrentPlayer.setText("It was a tie!");
+					player.setBank(player.getBank() + mHumanBet);
+				}
 			}
+
 			mDealerHand.clear();
-			for(Card card : mDealerCards) {
+			for(Card card : dealer.getHand(0)) {
 				mDealerHand.addCard(card.toString());
 			}
 			mHumanBet = 0;
-			mPlayerBank.setText("$"+mHumanBank);
+			mPlayerBank.setText("$"+player.getBank());
 			mCommunicate.setText("Select the Stand button to start the next hand.");
 			mHumanFinishHand.drainPermits();
 			mHumanFinishHand.acquire();
 			mCommunicate.setText("");
 		}
-	}
-	
-	private String winner(Hand player, Hand dealer) {
-		Hand winner = new Hand("");
-		if(player.bust() && !dealer.bust()) {
-			winner = dealer;
-		} else if (!player.bust() && dealer.bust()) {
-			winner = player;
-		} else if (player.count() > dealer.count()) {
-			winner = player;
-		} else if (player.count() < dealer.count()) {
-			winner = dealer;
-		}
-		// Leave it null if there is a tie.
-		return winner.name();
 	}
 
 	public ActionListener getSplitListener() {

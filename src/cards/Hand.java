@@ -1,9 +1,9 @@
 package cards;
 
-import java.awt.Component;
 import java.util.ArrayList;
 
-public class Hand extends ArrayList<Card>{
+public class Hand extends ArrayList<Card> implements Comparable<Hand>{
+	private static final long serialVersionUID = -1934728813204224831L;
 	private String mName;
 	
 	public Hand(String s){
@@ -25,7 +25,7 @@ public class Hand extends ArrayList<Card>{
 		}
 		
 		// We only have the aces now.
-		for(Card card : temp) {
+		for(@SuppressWarnings("unused") Card card : temp) {
 			if(total + 11 <= 21) {
 				total += 11;
 			} else {
@@ -60,7 +60,7 @@ public class Hand extends ArrayList<Card>{
 		}
 		
 		// We only have the aces now.
-		for(Card card : temp) {
+		for(@SuppressWarnings("unused") Card card : temp) {
 			if(total + 11 <= 21) {
 				total += 11;
 			} else {
@@ -88,5 +88,19 @@ public class Hand extends ArrayList<Card>{
 	
 	public String name() {
 		return mName;
+	}
+
+	@Override
+	public int compareTo(Hand other) {
+		if(this.bust() && !other.bust()) {
+			return -1;
+		} else if (!this.bust() && other.bust()) {
+			return 1;
+		} else if (this.count() > other.count()) {
+			return 1;
+		} else if (this.count() < other.count()) {
+			return -1;
+		}
+		return 0;
 	}
 }

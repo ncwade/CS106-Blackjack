@@ -1,59 +1,58 @@
 package players;
 
+import cards.Hand;
+
 public class Dealer implements Player {
-
-	@Override
-	public String mName() {
-		return "Dealer";
+	
+	private Hand mHand;
+	private int mBank = 0;
+	private String mName;
+	
+	// Singleton
+	public Dealer(String name, int value) {
+		mName = name;
+		mBank = value;
+		mHand = new Hand(mName);
 	}
 	
-	@Override
-	public int mCash() {
-		// A dealer is not going to be betting
-		return 0;
-	}
-	
-	@Override
-	public int mGetHandValue() {
-		// 
-		return 0;
-	}
-	
-	@Override
-	public int mHit() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-	
-	@Override
-	public int mSeat() {
-		// A dealer is always dealt last
-		// Need to identify up to 7 seating locations + dealer
-		// Have seat locations be boolean to see if they are occupied?
-		return 0;
-	}
-	
-	@Override
-	public int mHands(int n) {
-		// A dealer can only have 1 hand
-		return 1;
+	public Dealer() {
+		mName = "Dealer";
+		mBank = 500;
+		mHand = new Hand(mName);
 	}
 
 	@Override
-	public boolean insurance() {
-		// A dealer cannot buy insurance
-		return false;
+	public Hand getHand(int index) {
+		return mHand;
 	}
 
 	@Override
-	public boolean doubleDown() {
-		// A dealer cannot double down
-		return false;
+	public void setHand(Hand hand, int index) {
+		mHand = hand;
 	}
 
 	@Override
-	public boolean split() {
-		// A dealer cannot split cards
-		return false;
+	public int getBank() {
+		return mBank;
+	}
+
+	@Override
+	public void setBank(int value) {
+		mBank = value;
+	}
+
+	@Override
+	public void setName(String name) {
+		mName = name;
+	}
+
+	@Override
+	public String getName() {
+		return mName;
+	}
+
+	@Override
+	public void clearHands() {
+		mHand.clear();
 	}
 }
