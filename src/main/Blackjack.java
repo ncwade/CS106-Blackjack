@@ -181,12 +181,13 @@ public class Blackjack {
 	public void game() {
 		while (player.getBank() > 0 && dealer.getBank() > 0 && !mShoe.empty()) {
 			
-			// Reset the hands.
+			// Reset data.
 			mPlayerHand.clear();
 			mDealerHand.clear();
 			player.clearHands();
 			dealer.clearHands();
 			mSplitHand.clear();
+			mHumanBet = 0;
 			
 			mHumanBetLock.acquire(1);;
 			mCurrentPlayer.setText("Please set bet value...");
@@ -217,17 +218,28 @@ public class Blackjack {
 			mHumanInteractionNeeded = false;
 
 			// Get dealer decision
-			while(dealer.getHand(0).count() < 17 && !player.getHand(0).bust()) {
+			while(dealer.getHand(0).count() < 17) {
+				// Check all of the player's hands to see if they bust.
+				for(Hand hand : player.getHands()) {
+					if(hand.bust()) {
+						break;
+					}
+				}
+				
+				// Ok, we have to hit.
 				Card card = mShoe.draw();
 				mDealerHand.addCard(card.toString());
 				dealer.getHand(0).add(card);
+				
+				// Do some funky sleeping to make the hand feel more gradual.
 				try {
-					Thread.sleep(250);
+					Thread.sleep(500);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
 			
+			// Evaluate all of the hands that were played.
 			for(Hand hand : player.getHands()) {
 				if(hand.compareTo(dealer.getHand(0)) > 0) {
 					mCurrentPlayer.setText("The winner is: "+ player.getName());
@@ -240,12 +252,14 @@ public class Blackjack {
 					player.setBank(player.getBank() + mHumanBet);
 				}
 			}
-
+			
+			// Display the dealer's cards so the user can read them.
 			mDealerHand.clear();
 			for(Card card : dealer.getHand(0)) {
 				mDealerHand.addCard(card.toString());
 			}
-			mHumanBet = 0;
+			
+			// Update the user bank & wait for them to tell us to continue.
 			mPlayerBank.setText("$"+player.getBank());
 			mCommunicate.setText("Select the Stand button to start the next hand.");
 			mHumanFinishHand.drainPermits();
