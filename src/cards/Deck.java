@@ -10,8 +10,8 @@ public class Deck {
 	Deck() {
 		mDeck = new ArrayList<Card>();
 		mDiscard = new ArrayList<Card>();
-		for(int i = 1; i <= 13; i++) {
-			for(Suit suit : Suit.values()) {
+		for(Suit suit : Suit.values()) {
+			for(int i = 1; i <= 13; i++) {
 				mDeck.add(new Card(suit,i));
 			}
 		}
