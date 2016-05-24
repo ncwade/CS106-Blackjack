@@ -5,15 +5,17 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import cards.Card;
 import cards.Hand;
 import cards.Shoe;
+import gui.BetterPanel;
 import gui.CardPanel;
-import gui.Spacer;
 import players.Dealer;
 import players.HumanPlayer;
 import util.BetterSemaphore;
@@ -26,19 +28,13 @@ public class Blackjack {
 		mShoe = new Shoe(3);
 		mBackground.setOpaque(false);
 		mDealerHand.setOpaque(false);
-		mPlayerHand.setOpaque(false);
-		mSplitHand.setOpaque(false);
 		mPlayerArea.setOpaque(false);
-		mSeperator.setOpaque(false);
 		mCenter.setOpaque(false);
 		mCommunicate.setText("Use the New Game menu option to start a game");
 		mCommunicate.setHorizontalTextPosition(JLabel.CENTER);
 		mCommunicate.setSize(300, 35);
 		mCommunicate.setFont(new Font(mBackground.getFont().getName(), Font.PLAIN, 15));
 		mCenter.add(mCommunicate);
-		mPlayerArea.add(mPlayerHand);
-		mPlayerArea.add(mSeperator);
-		mPlayerArea.add(mSplitHand);
 		mBackground.add(mPlayerArea,BorderLayout.SOUTH);
 		mBackground.add(mDealerHand,BorderLayout.NORTH);
 		mBackground.add(mCenter,BorderLayout.CENTER);
@@ -52,10 +48,8 @@ public class Blackjack {
 	private JLabel mCurrentPlayer = new JLabel("No Player currently selected.");
 	private JLabel mPlayerBank = new JLabel("$0");
 	private JLabel mCommunicate = new JLabel("");
-
-	private Spacer mSeperator = new Spacer();
-	private CardPanel mPlayerHand = new CardPanel();
-	private CardPanel mSplitHand = new CardPanel();
+	
+	private ArrayList<BetterPanel> mPlayerPanels;
 	private CardPanel mDealerHand = new CardPanel();
 	private JPanel mCenter = new JPanel();
 
@@ -69,28 +63,7 @@ public class Blackjack {
 	Shoe mShoe;
 	HumanPlayer player;
 	Dealer dealer;
-	
-	// Action handlers.
-	private ActionListener mSplitListener = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			if (mHumanInteractionNeeded) {
-				if(player.getHand(0).canSplit()) {
-					Hand split = player.getHand(0).split();
-					player.setHand(split, 1);
-					for(Card card : player.getHand(1)) {
-						mSplitHand.addCard(card.toString());
-					}
-					mPlayerHand.clear();
-					for(Card card : player.getHand(0)) {
-						mPlayerHand.addCard(card.toString());
-					}
-
-					mHumanBet += mHumanBet;
-				}
-			}
-		}
-	};
+	int mCurrHandIndex = 0;
 
 	private ActionListener mDoubleListener = new ActionListener() {
 		@Override
@@ -100,8 +73,8 @@ public class Blackjack {
 					mHumanBet += mHumanBet;
 					mHasDoubled = true;
 					Card card = mShoe.draw();
-					player.getHand(0).add(card);
-					mPlayerHand.addCard(card.toString());
+					player.getHand(mCurrHandIndex).add(card);
+					((CardPanel) mPlayerPanels.get(mCurrHandIndex)).addCard(card.toString());
 					mHumanInteractionNeeded = false;
 					mHumanFinishHand.release();
 				}
@@ -114,9 +87,9 @@ public class Blackjack {
 		public void actionPerformed(ActionEvent event) {
 			if (mHumanInteractionNeeded) {
 				Card card = mShoe.draw();
-				player.getHand(0).add(card);
-				mPlayerHand.addCard(card.toString());
-				if(player.getHand(0).bust()) {
+				player.getHand(mCurrHandIndex).add(card);
+				((CardPanel) mPlayerPanels.get(mCurrHandIndex)).addCard(card.toString());
+				if(player.getHand(mCurrHandIndex).bust()) {
 					mCurrentPlayer.setText("You bust!");
 					mHumanInteractionNeeded = false;
 					mHumanFinishHand.release();
@@ -164,12 +137,32 @@ public class Blackjack {
 	// Start a new game.
 	public void newGame() {
 		// initialize everything we need.
-		mGameThread.stop();
 		mShoe = new Shoe(3);
 		player = new HumanPlayer();
 		dealer = new Dealer();
 		mPlayerBank.setText("$"+player.getBank());
 		mCommunicate.setText("");
+		
+		// If the user created a new game without finishing the previous one
+		// things get funky. Repaint to prevent that.
+		mPlayerArea.removeAll();
+		mPlayerArea.revalidate();
+		mPlayerArea.repaint();
+		
+		mPlayerPanels = new ArrayList<BetterPanel>();
+		mPlayerPanels.add(new CardPanel());
+		mPlayerPanels.add(new CardPanel());
+		mPlayerPanels.add(new BetterPanel());
+		
+		// Add the panels in a specific order.
+		mPlayerArea.add(mPlayerPanels.get(0));
+		mPlayerArea.add(mPlayerPanels.get(2));
+		mPlayerArea.add(mPlayerPanels.get(1));
+		
+		for(BetterPanel panel : mPlayerPanels)  {
+			panel.setOpaque(false);
+		}
+		
 		mGameThread = new Thread(new Runnable() {
 			public void run() {
 				game();
@@ -182,11 +175,12 @@ public class Blackjack {
 		while (player.getBank() > 0 && dealer.getBank() > 0 && !mShoe.empty()) {
 			
 			// Reset data.
-			mPlayerHand.clear();
+			for(BetterPanel panel : mPlayerPanels) {
+				panel.clear();
+			}
 			mDealerHand.clear();
 			player.clearHands();
 			dealer.clearHands();
-			mSplitHand.clear();
 			mHumanBet = 0;
 			
 			mHumanBetLock.acquire(1);;
@@ -203,27 +197,52 @@ public class Blackjack {
 			
 			// Draw dealt player cards
 			for(Card card : player.getHand(0)) {
-				mPlayerHand.addCard(card.toString());
+				// We know the first and third panels will be CardPanels.
+				((CardPanel) mPlayerPanels.get(0)).addCard(card.toString());
 			}
 
 			// Draw a hidden card & a visible one for the dealer.
 			mDealerHand.addCard("resources/cards/b.gif");
 			mDealerHand.addCard(dealer.getHand(0).get(1).toString());
+			
+			// Let's see if the player can split.
+			if(player.getHand(0).canSplit()) {
+				int output = JOptionPane.showConfirmDialog(null, 
+											"Would you like to split this hand?", 
+											"Split Box", JOptionPane.YES_NO_OPTION);
+				if(output == JOptionPane.YES_OPTION) {
+					Hand split = player.getHand(0).split();
+					player.setHand(split, 1);
+					for(Card card : player.getHand(1)) {
+						((CardPanel) mPlayerPanels.get(1)).addCard(card.toString());
+					}
+					mPlayerPanels.get(0).clear();
+					for(Card card : player.getHand(0)) {
+						((CardPanel) mPlayerPanels.get(0)).addCard(card.toString());
+					}
+	
+					mHumanBet += mHumanBet;
+				}
+			}
 
 			// Get human decisions.
-			mHumanFinishHand.drainPermits();
-			mHasDoubled = false;
-			mHumanInteractionNeeded = true;
-			mHumanFinishHand.acquire();
-			mHumanInteractionNeeded = false;
+			mCurrHandIndex = 0;
+			for(@SuppressWarnings("unused") Hand hand : player.getHands()) {
+				((CardPanel) mPlayerPanels.get(mCurrHandIndex)).selected(true);
+				mHumanFinishHand.drainPermits();
+				mHasDoubled = false;
+				mHumanInteractionNeeded = true;
+				mHumanFinishHand.acquire();
+				mHumanInteractionNeeded = false;
+				((CardPanel) mPlayerPanels.get(mCurrHandIndex)).selected(false);
+				mCurrHandIndex += 1;
+			}
 
 			// Get dealer decision
 			while(dealer.getHand(0).count() < 17) {
 				// Check all of the player's hands to see if they bust.
-				for(Hand hand : player.getHands()) {
-					if(hand.bust()) {
-						break;
-					}
+				if(player.getHand(0).bust() && player.getHand(1).bust()) {
+					break;
 				}
 				
 				// Ok, we have to hit.
@@ -240,17 +259,20 @@ public class Blackjack {
 			}
 			
 			// Evaluate all of the hands that were played.
+			mCurrHandIndex = 0;
+			mCurrentPlayer.setText("Hover over the hand to see the winner.");
 			for(Hand hand : player.getHands()) {
 				if(hand.compareTo(dealer.getHand(0)) > 0) {
-					mCurrentPlayer.setText("The winner is: "+ player.getName());
+					((CardPanel) mPlayerPanels.get(mCurrHandIndex)).setToolTipText("The winner is: "+ player.getName());
 					player.setBank(player.getBank() + mHumanBet);
 				} else if (hand.compareTo(dealer.getHand(0)) < 0) {
-					mCurrentPlayer.setText("The winner is: "+ dealer.getHand(0).name());
+					((CardPanel) mPlayerPanels.get(mCurrHandIndex)).setToolTipText("The winner is: "+ dealer.getHand(0).name());
 					dealer.setBank(dealer.getBank() + mHumanBet);
 				} else {
-					mCurrentPlayer.setText("It was a tie!");
+					((CardPanel) mPlayerPanels.get(mCurrHandIndex)).setToolTipText("It was a tie!");
 					player.setBank(player.getBank() + mHumanBet);
 				}
+				mCurrHandIndex++;
 			}
 			
 			// Display the dealer's cards so the user can read them.
@@ -268,9 +290,6 @@ public class Blackjack {
 		}
 	}
 
-	public ActionListener getSplitListener() {
-		return mSplitListener;
-	}
 	public ActionListener getDoubleListener() {
 		return mDoubleListener;
 	}

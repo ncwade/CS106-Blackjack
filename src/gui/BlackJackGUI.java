@@ -1,7 +1,6 @@
 package gui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 
 import javax.swing.*;
 import main.Blackjack;
@@ -10,8 +9,7 @@ import main.Blackjack;
 public class BlackJackGUI extends JFrame {
 	MenuBar mMenubar = new MenuBar();
 	JPanel mTopPanel = new TopPanel();
-	JPanel mBottomPanel = new BottomPanel(); 
-	private JTextField tbx_new = new JTextField();
+	JPanel mBottomPanel = new BottomPanel();
 	
 	public BlackJackGUI() {
 		Blackjack game = Blackjack.getInstance();

@@ -10,14 +10,14 @@ public class Shoe {
 		mCards = new ArrayList<Card>();
 		for(int i = 0; i < numDecks;i++) {
 			Deck deck = new Deck();
-			deck.shuffle();
+//			deck.shuffle();
 			while(!deck.empty()){
 				mCards.add(deck.draw());
 			}
 		}
 		mCount = 0;
 		// Re-shuffle our shuffled cards.
-		Collections.shuffle(mCards);
+//		Collections.shuffle(mCards);
 	}
 	
 	public Card draw() {

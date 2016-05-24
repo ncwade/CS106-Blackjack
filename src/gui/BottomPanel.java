@@ -15,7 +15,6 @@ public class BottomPanel extends JPanel {
 
 	JButton mHit = new JButton("Hit");
 	JButton mStand = new JButton("Stand");
-	JButton mSplit = new JButton("Split");
 	JButton mDoubleDown = new JButton("Double Down");
 	JButton mBet = new JButton("Bet");
 	String[] betStrings = new String[] { "$5", "$10", "$20", "$50", "$100" };
@@ -27,7 +26,6 @@ public class BottomPanel extends JPanel {
 		Blackjack game = Blackjack.getInstance();
 		
 		// Set up listeners.
-		mSplit.addActionListener(game.getSplitListener());
 		mDoubleDown.addActionListener(game.getDoubleListener());
 		mBet.addActionListener(new ActionListener() {
 			@Override
@@ -40,7 +38,6 @@ public class BottomPanel extends JPanel {
 		
 		add(mHit);
 		add(mStand);
-		add(mSplit);
 		add(mDoubleDown);
 		add(mBet);
 		add(betOptions);
