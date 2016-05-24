@@ -232,12 +232,21 @@ public class Blackjack {
 			for(@SuppressWarnings("unused") Hand hand : player.getHands()) {
 				((CardPanel) mPlayerPanels.get(mCurrHandIndex)).selected(true);
 				mHumanFinishHand.drainPermits();
-				mHasDoubled = false;
-				mHumanInteractionNeeded = true;
-				mHumanFinishHand.acquire();
-				mHumanInteractionNeeded = false;
-				((CardPanel) mPlayerPanels.get(mCurrHandIndex)).selected(false);
-				mCurrHandIndex += 1;
+				
+				if(hand.count() == 21){
+					mHumanInteractionNeeded = false;
+					//lBlackJackFlag = true;
+					player.setBank(player.getBank() + mHumanBet + (mHumanBet * 2)); 
+				} else {
+					mHasDoubled = false;
+					mHumanInteractionNeeded = true;
+					mHumanFinishHand.acquire();
+					mHumanInteractionNeeded = false;
+					((CardPanel) mPlayerPanels.get(mCurrHandIndex)).selected(false);
+					mCurrHandIndex += 1;
+				}
+				
+
 			}
 
 			// Get dealer decision
