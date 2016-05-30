@@ -34,7 +34,7 @@ public class BottomPanel extends JPanel {
 			}
 		});
 		mHit.addActionListener(game.getHitListener());
-		mStand.addActionListener(game.getHoldListener());
+		mStand.addActionListener(game.getStandListener());
 		
 		add(mHit);
 		add(mStand);

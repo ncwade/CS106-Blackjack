@@ -70,7 +70,15 @@ public class Blackjack {
 		public void actionPerformed(ActionEvent event) {
 			if (mHumanInteractionNeeded) {
 				if(!mHasDoubled) {
-					mHumanBet += mHumanBet;
+					System.out.println("Bet before double: " + mHumanBet);
+					mHumanBetLock.acquire(1);
+					player.setBank(player.getBank() + mHumanBet);
+					setHumanBet(mHumanBet * 2);
+					//mHumanBet += mHumanBet;
+					//player.setBank(player.getBank() - mHumanBet);
+					System.out.println("Bet after double: " + mHumanBet);
+					
+					//mHumanBet += mHumanBet;
 					mHasDoubled = true;
 					Card card = mShoe.draw();
 					player.getHand(mCurrHandIndex).add(card);
@@ -85,6 +93,7 @@ public class Blackjack {
 	private ActionListener mHitListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent event) {
+			
 			if (mHumanInteractionNeeded) {
 				Card card = mShoe.draw();
 				player.getHand(mCurrHandIndex).add(card);
@@ -98,7 +107,7 @@ public class Blackjack {
 		}
 	};
 
-	private ActionListener mHoldListener = new ActionListener() {
+	private ActionListener mStandListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			mHumanFinishHand.release();
@@ -178,12 +187,13 @@ public class Blackjack {
 			for(BetterPanel panel : mPlayerPanels) {
 				panel.clear();
 			}
+			boolean lBlackJackFlag = false;
 			mDealerHand.clear();
 			player.clearHands();
 			dealer.clearHands();
 			mHumanBet = 0;
 			
-			mHumanBetLock.acquire(1);;
+			mHumanBetLock.acquire(1);
 			mCurrentPlayer.setText("Please set bet value...");
 			mHumanBetLock.acquire(1);
 			mHumanBetLock.release(1);
@@ -194,7 +204,7 @@ public class Blackjack {
 			dealer.getHand(0).add(mShoe.draw());
 			player.getHand(0).add(mShoe.draw());
 			dealer.getHand(0).add(mShoe.draw());
-			
+			System.out.println(mShoe.getCount());
 			// Draw dealt player cards
 			for(Card card : player.getHand(0)) {
 				// We know the first and third panels will be CardPanels.
@@ -230,14 +240,16 @@ public class Blackjack {
 			// Get human decisions.
 			mCurrHandIndex = 0;
 			for(@SuppressWarnings("unused") Hand hand : player.getHands()) {
-				((CardPanel) mPlayerPanels.get(mCurrHandIndex)).selected(true);
-				mHumanFinishHand.drainPermits();
-				
+				((CardPanel) mPlayerPanels.get(mCurrHandIndex)).selected(true);				
 				if(hand.count() == 21){
-					mHumanInteractionNeeded = false;
-					//lBlackJackFlag = true;
+					//popup box for blackjack
+					JOptionPane.showMessageDialog(null, "You got a Blackjack!", "Blackjack", JOptionPane.INFORMATION_MESSAGE);
+					//update tooltip
+					((CardPanel) mPlayerPanels.get(mCurrHandIndex)).setToolTipText("You got a Blackjack! Payout is double the bet.");
+					lBlackJackFlag = true;
 					player.setBank(player.getBank() + mHumanBet + (mHumanBet * 2)); 
 				} else {
+					mHumanFinishHand.drainPermits();
 					mHasDoubled = false;
 					mHumanInteractionNeeded = true;
 					mHumanFinishHand.acquire();
@@ -249,49 +261,50 @@ public class Blackjack {
 
 			}
 
-			// Get dealer decision
-			while(dealer.getHand(0).count() < 17) {
-				// Check all of the player's hands to see if they bust.
-				boolean isAllBust = true;
-				for(Hand hand : player.getHands()) {
-					if (!hand.bust()) {
-						isAllBust = false;
+			if(!lBlackJackFlag){
+				// Get dealer decision
+				while(dealer.getHand(0).count() < 17) {
+					// Check all of the player's hands to see if they bust.
+					boolean isAllBust = true;
+					for(Hand hand : player.getHands()) {
+						if (!hand.bust()) {
+							isAllBust = false;
+						}
+					}
+					if(isAllBust) {
+						break;
+					}
+					
+					// Ok, we have to hit.
+					Card card = mShoe.draw();
+					mDealerHand.addCard(card.toString());
+					dealer.getHand(0).add(card);
+					
+					// Do some funky sleeping to make the hand feel more gradual.
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
 				}
-				if(isAllBust) {
-					break;
-				}
 				
-				// Ok, we have to hit.
-				Card card = mShoe.draw();
-				mDealerHand.addCard(card.toString());
-				dealer.getHand(0).add(card);
-				
-				// Do some funky sleeping to make the hand feel more gradual.
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				// Evaluate all of the hands that were played.
+				mCurrHandIndex = 0;
+				mCurrentPlayer.setText("Hover over the hand to see the winner.");
+				for(Hand hand : player.getHands()) {
+					if(hand.compareTo(dealer.getHand(0)) > 0) {
+						((CardPanel) mPlayerPanels.get(mCurrHandIndex)).setToolTipText("The winner is: "+ player.getName());
+						player.setBank(player.getBank() + mHumanBet * 2);
+					} else if (hand.compareTo(dealer.getHand(0)) < 0) {
+						((CardPanel) mPlayerPanels.get(mCurrHandIndex)).setToolTipText("The winner is: "+ dealer.getHand(0).name());
+						dealer.setBank(dealer.getBank() + mHumanBet);
+					} else {
+						((CardPanel) mPlayerPanels.get(mCurrHandIndex)).setToolTipText("It was a tie!");
+						player.setBank(player.getBank() + mHumanBet);
+					}
+					mCurrHandIndex++;
 				}
 			}
-			
-			// Evaluate all of the hands that were played.
-			mCurrHandIndex = 0;
-			mCurrentPlayer.setText("Hover over the hand to see the winner.");
-			for(Hand hand : player.getHands()) {
-				if(hand.compareTo(dealer.getHand(0)) > 0) {
-					((CardPanel) mPlayerPanels.get(mCurrHandIndex)).setToolTipText("The winner is: "+ player.getName());
-					player.setBank(player.getBank() + mHumanBet);
-				} else if (hand.compareTo(dealer.getHand(0)) < 0) {
-					((CardPanel) mPlayerPanels.get(mCurrHandIndex)).setToolTipText("The winner is: "+ dealer.getHand(0).name());
-					dealer.setBank(dealer.getBank() + mHumanBet);
-				} else {
-					((CardPanel) mPlayerPanels.get(mCurrHandIndex)).setToolTipText("It was a tie!");
-					player.setBank(player.getBank() + mHumanBet);
-				}
-				mCurrHandIndex++;
-			}
-			
 			// Display the dealer's cards so the user can read them.
 			mDealerHand.clear();
 			for(Card card : dealer.getHand(0)) {
@@ -310,10 +323,14 @@ public class Blackjack {
 	public ActionListener getDoubleListener() {
 		return mDoubleListener;
 	}
-	public ActionListener getHoldListener() {
-		return mHoldListener;
+	public ActionListener getStandListener() {
+		return mStandListener;
 	}
 	public ActionListener getHitListener() {
 		return mHitListener;
+	}
+	
+	public Integer getCount(){
+		return mShoe.getCount();
 	}
 }
