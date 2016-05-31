@@ -333,4 +333,9 @@ public class Blackjack {
 	public Integer getCount(){
 		return mShoe.getCount();
 	}
+	
+	public Card peek(){
+		return mShoe.peek();
+	}
+	
 }

@@ -50,7 +50,7 @@ public class MenuBar extends JMenuBar {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				Blackjack game = Blackjack.getInstance();
-				
+				game.peek();
 			}
 		});
 		

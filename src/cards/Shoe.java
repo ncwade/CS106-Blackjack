@@ -3,13 +3,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 public class Shoe implements Queue<Card>{
 	private ArrayList<Card> mCards;
-	private Queue<Card> qCards;
+	private List<Card> qCards;
 	private Integer mCount;
-	
+/*
 	public Shoe(int numDecks) {
 		mCards = new ArrayList<Card>();
 		for(int i = 0; i < numDecks;i++) {
@@ -23,23 +25,38 @@ public class Shoe implements Queue<Card>{
 		// Re-shuffle our shuffled cards.
 		Collections.shuffle(mCards);
 	}
+*/
+	public Shoe(int numDecks) {
+		qCards = new LinkedList<Card>();
+		for(int i = 0; i < numDecks; i++) {
+			Deck deck = new Deck();
+			deck.shuffle();
+			while(!deck.empty()){
+				qCards.add(deck.draw());
+			}
+		}
+		mCount = 0;
+		// Re-shuffle our shuffled cards.
+		Collections.shuffle(qCards);
+	}
 	
 	public Card draw() {
-		Card lCard = mCards.remove(0);
+		Card lCard = qCards.remove(0);
 		updateCount(lCard);
 		return lCard;
 	}
 
 	public void burn() {
-		updateCount(mCards.remove(0));
+		updateCount(qCards.remove(0));
 	}
 	
 	public Integer getCount() {
-		return mCount/((mCards.size()/52)+1);
+		return mCount/((qCards.size()/52)+1);
 	}
 	
 	public boolean empty() {
-		return !(mCards.size() > 0);
+		//return !(mCards.size() > 0);
+		return !(qCards.size() > 0);
 	}
 	
 	private void updateCount(Card card) {
@@ -141,7 +158,7 @@ public class Shoe implements Queue<Card>{
 
 	@Override
 	public Card peek() {
-		System.out.print(qCards.peek());
+		System.out.print(qCards.get(0).getValue());
 		return null;
 	}
 
