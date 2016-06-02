@@ -1,5 +1,4 @@
 package cards;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -8,24 +7,9 @@ import java.util.List;
 import java.util.Queue;
 
 public class Shoe implements Queue<Card>{
-	private ArrayList<Card> mCards;
 	private List<Card> qCards;
 	private Integer mCount;
-/*
-	public Shoe(int numDecks) {
-		mCards = new ArrayList<Card>();
-		for(int i = 0; i < numDecks;i++) {
-			Deck deck = new Deck();
-			deck.shuffle();
-			while(!deck.empty()){
-				mCards.add(deck.draw());
-			}
-		}
-		mCount = 0;
-		// Re-shuffle our shuffled cards.
-		Collections.shuffle(mCards);
-	}
-*/
+
 	public Shoe(int numDecks) {
 		qCards = new LinkedList<Card>();
 		for(int i = 0; i < numDecks; i++) {
@@ -158,7 +142,7 @@ public class Shoe implements Queue<Card>{
 
 	@Override
 	public Card peek() {
-		System.out.print(qCards.get(0).getValue());
+		System.out.println("Next card value is: " + qCards.get(0).getValue());
 		return null;
 	}
 

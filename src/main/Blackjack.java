@@ -74,14 +74,10 @@ public class Blackjack {
 					mHumanBetLock.acquire(1);
 					player.setBank(player.getBank() + mHumanBet);
 					setHumanBet(mHumanBet * 2);
-					//mHumanBet += mHumanBet;
-					//player.setBank(player.getBank() - mHumanBet);
-					System.out.println("Bet after double: " + mHumanBet);
-					
-					//mHumanBet += mHumanBet;
 					mHasDoubled = true;
 					Card card = mShoe.draw();
-					player.getHand(mCurrHandIndex).add(card);
+					//((CardPanel) mPlayerPanels.get(mCurrHandIndex)).addCard(card.toString());
+					//player.getHand(mCurrHandIndex).add(card);
 					((CardPanel) mPlayerPanels.get(mCurrHandIndex)).addCard(card.toString());
 					mHumanInteractionNeeded = false;
 					mHumanFinishHand.release();
@@ -242,9 +238,9 @@ public class Blackjack {
 			for(@SuppressWarnings("unused") Hand hand : player.getHands()) {
 				((CardPanel) mPlayerPanels.get(mCurrHandIndex)).selected(true);				
 				if(hand.count() == 21){
-					//popup box for blackjack
+					//pop up box for blackjack
 					JOptionPane.showMessageDialog(null, "You got a Blackjack!", "Blackjack", JOptionPane.INFORMATION_MESSAGE);
-					//update tooltip
+					//update tool tip
 					((CardPanel) mPlayerPanels.get(mCurrHandIndex)).setToolTipText("You got a Blackjack! Payout is double the bet.");
 					lBlackJackFlag = true;
 					player.setBank(player.getBank() + mHumanBet + (mHumanBet * 2)); 
@@ -257,13 +253,17 @@ public class Blackjack {
 					((CardPanel) mPlayerPanels.get(mCurrHandIndex)).selected(false);
 					mCurrHandIndex += 1;
 				}
-				
-
+			}
+			
+			// Display the dealer's cards so the user can read them.
+			mDealerHand.clear();
+			for(Card card : dealer.getHand(0)) {
+				mDealerHand.addCard(card.toString());
 			}
 
 			if(!lBlackJackFlag){
 				// Get dealer decision
-				while(dealer.getHand(0).count() < 17) {
+				while(dealer.getHand(0).count() < 17) {				
 					// Check all of the player's hands to see if they bust.
 					boolean isAllBust = true;
 					for(Hand hand : player.getHands()) {
@@ -305,12 +305,7 @@ public class Blackjack {
 					mCurrHandIndex++;
 				}
 			}
-			// Display the dealer's cards so the user can read them.
-			mDealerHand.clear();
-			for(Card card : dealer.getHand(0)) {
-				mDealerHand.addCard(card.toString());
-			}
-			
+
 			// Update the user bank & wait for them to tell us to continue.
 			mPlayerBank.setText("$"+player.getBank());
 			mCommunicate.setText("Select the Stand button to start the next hand.");
